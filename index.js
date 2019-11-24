@@ -362,7 +362,6 @@ class instance extends instance_skel {
 				label:   'Dahua Amcrest API IP Address',
 				tooltip: 'The IP of the camera',
 				width:   6,
-				default: '192.168.1.108',
 				regex:   self.REGEX_IP
 			},
 			{
@@ -380,7 +379,6 @@ class instance extends instance_skel {
 				label:   'User name',
 				tooltip: 'The user name.',
 				width:   6,
-				default: 'openhof',
 				regex: self.REGEX_SOMETHING
 			},
 			{
@@ -389,7 +387,6 @@ class instance extends instance_skel {
 				label:   'Password',
 				tooltip: 'The password',
 				width:   6,
-				default: '0penh0f2019',
 				regex: self.REGEX_SOMETHING
 			}
 		]
