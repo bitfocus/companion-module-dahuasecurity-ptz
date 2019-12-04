@@ -5,3 +5,7 @@ Only basic PTZ commands of this API are implemented.
 
 ### Configuration
 Set ip-adres and port and password. Password is necessary.
+
+### Stream URL
+Stream URL for OBS is:
+rtsp://your-username:your-password@your-ip:554/cam/realmonitor?channel=1&subtype=0

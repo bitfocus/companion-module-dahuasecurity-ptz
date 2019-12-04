@@ -234,7 +234,7 @@ class instance extends instance_skel {
 		});
 	}
 
-	ptzMove(direction,action,speed) {
+	ptzMove(direction,action,speed = 1) {
 		var self = this;
 	  
 		if (speed == -1) {
@@ -257,6 +257,9 @@ class instance extends instance_skel {
     
 			if ((error) || (response.statusCode !== 200) || (body.trim() !== "OK")) {
 				self.log('warn', 'Send Error: ' + error);
+				// Start init to reconnect to cam because probably network lost
+				self.init();
+				
 			}
 		  }).auth(self.config.user,self.config.password,false);
 
@@ -403,6 +406,7 @@ class instance extends instance_skel {
 
 		debug = self.debug;
 		log = self.log;
+		self.instance_speed = 1;
 
 		self.status(self.STATUS_WARNING, 'Connecting...');
 
@@ -422,7 +426,9 @@ class instance extends instance_skel {
 			self.tcp.on('connect', function () {
 				// disconnect immediately because further comm takes place via Request and not
 				// via this tcp sockets.
-				self.tcp.destroy();
+				if (self.tcp !== undefined) {
+					self.tcp.destroy();
+				}
 				delete self.tcp;
 				self.BASEURI = 'http://' + self.config.host + ':' + self.config.port;
 
