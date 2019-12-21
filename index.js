@@ -249,7 +249,7 @@ class instance extends instance_skel {
 			return 0;
 		}
 
-		self.log('debug', action + ' to ' + direction);
+		//self.log('debug', action + ' to ' + direction);
 
 		request(self.BASEURI + '/cgi-bin/ptz.cgi?action=' + action + '&channel=1&code=' + direction + '&arg1=' + speed +'&arg2=' + speed + '&arg3=0', function (error, response, body) {
 
@@ -446,7 +446,6 @@ class instance extends instance_skel {
 					if ((error) || (response.statusCode !== 200) || (body.trim() !== "OK")) {
 						self.status(self.STATUS_ERROR, 'Username/password');
 						self.log('warn', "response.statusCode: " + response.statusCode);
-						self.log('warn', "response.statusText: " + response.statusText);
 					}
 					}).auth(self.config.user,self.config.password,false);
 			});
