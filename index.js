@@ -248,10 +248,17 @@ class instance extends instance_skel {
 			self.log('warn', 'INVALID PTZ COMMAND!');
 			return 0;
 		}
+		var uri = self.BASEURI + '/cgi-bin/ptz.cgi?action=' + action + '&channel=1';
 
-		//self.log('debug', action + ' to ' + direction);
+		if (direction == 'GotoPreset') {
+			uri += '&code=' + direction + '&arg1=0&arg2=' + speed + '&arg3=0';
+		} else {
+			uri += '&code=' + direction + '&arg1=' + speed +'&arg2=' + speed + '&arg3=0';
+		}
 
-		request(self.BASEURI + '/cgi-bin/ptz.cgi?action=' + action + '&channel=1&code=' + direction + '&arg1=' + speed +'&arg2=' + speed + '&arg3=0', function (error, response, body) {
+		//self.log('debug', uri);
+
+		request(uri, function (error, response, body) {
 
 			if ((error) || (response.statusCode !== 200) || (body.trim() !== "OK")) {
 				self.log('warn', 'Send Error: ' + error);
@@ -440,12 +447,13 @@ class instance extends instance_skel {
 				self.BASEURI = 'http://' + self.config.host + ':' + self.config.port;
 
 				//Try a ptz stop command to be sure username and password are correct and this user is allowed PTZ on this camera
-				self.log('debug', 'Send stop command to camera to test');
 				request(self.BASEURI + '/cgi-bin/ptz.cgi?action=stop&channel=1&code=Up&arg1=1&arg2=1&arg3=0', function (error, response, body) {
 
 					if ((error) || (response.statusCode !== 200) || (body.trim() !== "OK")) {
 						self.status(self.STATUS_ERROR, 'Username/password');
 						self.log('warn', "response.statusCode: " + response.statusCode);
+					} else {
+						self.status(self.STATUS_OK, 'Connected');
 					}
 					}).auth(self.config.user,self.config.password,false);
 			});
