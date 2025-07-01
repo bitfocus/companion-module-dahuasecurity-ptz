@@ -331,6 +331,12 @@ class instance extends instance_skel {
 				cmd = 'stop';
 				param = 'Left';
 				self.ptzMove(param, cmd, 1);
+				// some cameras require separate commands for stopping zoom/focus.
+				// the documentation notes that speed should be zero for both of these
+				param = 'ZoomWide';
+				self.ptzMove(param, cmd, 0);
+				param = 'FocusFar';
+				self.ptzMove(param, cmd, 0);
 				break;
 
 			case 'zoomI':
