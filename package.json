@@ -22,5 +22,6 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-dahuasecurity-ptz.git"
-	}
+	},
+	"packageManager": "yarn@4.9.4"
 }
