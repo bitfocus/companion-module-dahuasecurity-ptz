@@ -17,7 +17,9 @@
 		"request": "^2.85.0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.3.0"
+		"@companion-module/tools": "^2.3.0",
+		"eslint": "^9.34.0",
+		"prettier": "^3.6.2"
 	},
 	"homepage": "https://github.com/bitfocus/companion-module-dahuasecurity-ptz#readme",
 	"bugs": {
