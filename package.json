@@ -1,20 +1,11 @@
 {
 	"name": "dahuasecurity-ptz",
-	"version": "1.0.3",
-	"api_version": "1.0.0",
-	"keywords": [
-		"Camera"
-	],
-	"manufacturer": "dahua",
-	"product": "PTZ Camera",
-	"shortname": "dahua",
-	"description": "dahua PTZ camera control Amcrest protocol",
+	"version": "2.0.0",
 	"main": "index.js",
 	"scripts": {
 		"format": "prettier -w .",
 		"package": "companion-module-build"
 	},
-	"author": "Bastiaan Rodenburg <b.rodenburg@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
 		"@companion-module/base": "~1.12.1",
@@ -24,10 +15,6 @@
 		"@companion-module/tools": "^2.3.0",
 		"eslint": "^9.34.0",
 		"prettier": "^3.6.2"
-	},
-	"homepage": "https://github.com/bitfocus/companion-module-dahuasecurity-ptz#readme",
-	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-dahuasecurity-ptz/issues"
 	},
 	"repository": {
 		"type": "git",
