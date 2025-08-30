@@ -13,7 +13,11 @@
 	"author": "Bastiaan Rodenburg <b.rodenburg@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
+		"@companion-module/base": "~1.12.1",
 		"request": "^2.85.0"
+	},
+	"devDependencies": {
+		"@companion-module/tools": "^2.3.0"
 	},
 	"homepage": "https://github.com/bitfocus/companion-module-dahuasecurity-ptz#readme",
 	"bugs": {
