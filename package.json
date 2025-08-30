@@ -10,6 +10,10 @@
 	"shortname": "dahua",
 	"description": "dahua PTZ camera control Amcrest protocol",
 	"main": "index.js",
+	"scripts": {
+		"format": "prettier -w .",
+		"package": "companion-module-build"
+	},
 	"author": "Bastiaan Rodenburg <b.rodenburg@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
@@ -29,5 +33,6 @@
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-dahuasecurity-ptz.git"
 	},
+	"prettier": "@companion-module/tools/.prettierrc.json",
 	"packageManager": "yarn@4.9.4"
 }
