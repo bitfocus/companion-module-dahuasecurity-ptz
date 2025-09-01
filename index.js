@@ -1,31 +1,26 @@
-var instance_skel = require('../../instance_skel');
-var request = require("request");
-var tcp = require("../../tcp");
-var debug;
-var log;
-var instance_speed = 1;
+const { InstanceBase, Regex, TCPHelper, runEntrypoint } = require('@companion-module/base')
+const request = require('request')
+const DEFAULT_INSTANCE_SPEED = 1
 
 /**
  * Companion instance for Dahua / Amcrest PTZ cameras.
  * @author Bastiaan Rodenburg
  */
 
-class instance extends instance_skel {
+class ModuleInstance extends InstanceBase {
+	constructor(internal) {
+		super(internal)
+		var self = this
 
-	constructor(system, id, config) {
-		super(system, id, config);
-		var self = this;
-
-		// Characterworks Port #
-		self.actions();
-		self.BASEURI = "";
+		self.BASEURI = ''
 	}
 
-	actions(system) {
-		var self = this;
+	actions() {
+		var self = this
 
-		self.setActions({
-			'left':           { label: 'Pan Left',
+		self.setActionDefinitions({
+			left: {
+				name: 'Pan Left',
 				options: [
 					{
 						type: 'dropdown',
@@ -40,13 +35,15 @@ class instance extends instance_skel {
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
 							{ id: '8', label: '8 fast' },
-							{ id: '-1', label: 'Default speed' }
-						]
-					}
+							{ id: '-1', label: 'Default speed' },
+						],
+					},
 				],
-				default: '1'
+				default: '1',
+				callback: ({ options }) => self.ptzMove('Left', 'start', options.speed),
 			},
-			'right':          { label: 'Pan Right' ,
+			right: {
+				name: 'Pan Right',
 				options: [
 					{
 						type: 'dropdown',
@@ -61,13 +58,15 @@ class instance extends instance_skel {
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
 							{ id: '8', label: '8 fast' },
-							{ id: '-1', label: 'Default speed' }
-						]
-					}
+							{ id: '-1', label: 'Default speed' },
+						],
+					},
 				],
-				default: '1'
+				default: '1',
+				callback: ({ options }) => self.ptzMove('Right', 'start', options.speed),
 			},
-			'up':          { label: 'Tilt up' ,
+			up: {
+				name: 'Tilt up',
 				options: [
 					{
 						type: 'dropdown',
@@ -82,13 +81,15 @@ class instance extends instance_skel {
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
 							{ id: '8', label: '8 fast' },
-							{ id: '-1', label: 'Default speed' }
-						]
-					}
+							{ id: '-1', label: 'Default speed' },
+						],
+					},
 				],
-				default: '1'
+				default: '1',
+				callback: ({ options }) => self.ptzMove('Up', 'start', options.speed),
 			},
-			'down':          { label: 'Tilt down' ,
+			down: {
+				name: 'Tilt down',
 				options: [
 					{
 						type: 'dropdown',
@@ -102,14 +103,16 @@ class instance extends instance_skel {
 							{ id: '5', label: '5' },
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
-							{ id: '8', label: '8 fast' } ,
-							{ id: '-1', label: 'Default speed' }
+							{ id: '8', label: '8 fast' },
+							{ id: '-1', label: 'Default speed' },
 						],
-						default: '1'
-					}
-				]
+						default: '1',
+					},
+				],
+				callback: ({ options }) => self.ptzMove('Down', 'start', options.speed),
 			},
-			'upleft':           { label: 'Pan Up/Left',
+			upleft: {
+				name: 'Pan Up/Left',
 				options: [
 					{
 						type: 'dropdown',
@@ -123,14 +126,16 @@ class instance extends instance_skel {
 							{ id: '5', label: '5' },
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
-							{ id: '8', label: '8 fast' } ,
-							{ id: '-1', label: 'Default speed' }
+							{ id: '8', label: '8 fast' },
+							{ id: '-1', label: 'Default speed' },
 						],
-						default: '1'
-					}
-				]
-				},
-			'upright':          { label: 'Pan Up/Right' ,
+						default: '1',
+					},
+				],
+				callback: ({ options }) => self.ptzMove('LeftUp', 'start', options.speed),
+			},
+			upright: {
+				name: 'Pan Up/Right',
 				options: [
 					{
 						type: 'dropdown',
@@ -144,14 +149,16 @@ class instance extends instance_skel {
 							{ id: '5', label: '5' },
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
-							{ id: '8', label: '8 fast' } ,
-							{ id: '-1', label: 'Default speed' }
+							{ id: '8', label: '8 fast' },
+							{ id: '-1', label: 'Default speed' },
 						],
-						default: '1'
-					}
-				]
+						default: '1',
+					},
+				],
+				callback: ({ options }) => self.ptzMove('RightUp', 'start', options.speed),
 			},
-			'downleft':           { label: 'Pan Down/Left',
+			downleft: {
+				name: 'Pan Down/Left',
 				options: [
 					{
 						type: 'dropdown',
@@ -165,14 +172,16 @@ class instance extends instance_skel {
 							{ id: '5', label: '5' },
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
-							{ id: '8', label: '8 fast' } ,
-							{ id: '-1', label: 'Default speed' }
+							{ id: '8', label: '8 fast' },
+							{ id: '-1', label: 'Default speed' },
 						],
-						default: '1'
-					}
-				]
+						default: '1',
+					},
+				],
+				callback: ({ options }) => self.ptzMove('LeftDown', 'start', options.speed),
 			},
-			'downright':          { label: 'Pan Down/Right' ,
+			downright: {
+				name: 'Pan Down/Right',
 				options: [
 					{
 						type: 'dropdown',
@@ -186,30 +195,34 @@ class instance extends instance_skel {
 							{ id: '5', label: '5' },
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
-							{ id: '8', label: '8 fast' } ,
-							{ id: '-1', label: 'Default speed' }
+							{ id: '8', label: '8 fast' },
+							{ id: '-1', label: 'Default speed' },
 						],
-						default: '1'
-					}
-				]
+						default: '1',
+					},
+				],
+				callback: ({ options }) => self.ptzMove('RightDown', 'start', options.speed),
 			},
-			'stop':           { label: 'PTZ Stop' },
-			'zoomI':          { label: 'Zoom In' },
-			'zoomO':          { label: 'Zoom Out' },
-			'focusN':         { label: 'Focus Near' },
-			'focusF':         { label: 'Focus Far' },
-			'preset':          { label: 'Goto preset' ,
+			stop: { name: 'PTZ Stop', options: [], callback: () => self.ptzMove('Left', 'stop', 1) },
+			zoomI: { name: 'Zoom In', options: [], callback: () => self.ptzMove('ZoomTele', 'start', 0) },
+			zoomO: { name: 'Zoom Out', options: [], callback: () => self.ptzMove('ZoomWide', 'start', 0) },
+			focusN: { name: 'Focus Near', options: [], callback: () => self.ptzMove('FocusNear', 'start', 0) },
+			focusF: { name: 'Focus Far', options: [], callback: () => self.ptzMove('FocusFar', 'start', 0) },
+			preset: {
+				name: 'Goto preset',
 				options: [
 					{
 						type: 'textinput',
 						width: 3,
-						regex: self.REGEX_NUMBER,
+						regex: Regex.NUMBER,
 						label: 'Preset #',
-						id: 'preset'
-					}
-				]
+						id: 'preset',
+					},
+				],
+				callback: ({ options }) => self.ptzMove('GotoPreset', 'start', options.preset),
 			},
-			'setDefaultSpeed':          { label: 'Set default speed' ,
+			setDefaultSpeed: {
+				name: 'Set default speed',
 				options: [
 					{
 						type: 'dropdown',
@@ -223,254 +236,161 @@ class instance extends instance_skel {
 							{ id: '5', label: '5' },
 							{ id: '6', label: '6' },
 							{ id: '7', label: '7' },
-							{ id: '8', label: '8 fast' } ,
+							{ id: '8', label: '8 fast' },
 						],
-						default: '1'
-					}
-				]
+						default: '1',
+					},
+				],
+				callback: ({ options }) => {
+					self.instance_speed = options.speed
+				},
 			},
-		});
+		})
 	}
 
-	ptzMove(direction,action,speed = 1) {
-		var self = this;
+	ptzMove(direction, action, speed = 1) {
+		var self = this
 
 		if (speed == -1) {
-			speed = self.instance_speed;
+			speed = self.instance_speed
 		}
 
 		if (isNaN(speed)) {
-			self.log('warn', 'INVALID PTZ SPEED');
-			return 0;
+			self.log('warn', 'INVALID PTZ SPEED')
+			return 0
 		}
 
-		if ((action !== 'start') && (action !== 'stop')) {
-			self.log('warn', 'INVALID PTZ COMMAND!');
-			return 0;
+		if (action !== 'start' && action !== 'stop') {
+			self.log('warn', 'INVALID PTZ COMMAND!')
+			return 0
 		}
-		var uri = self.BASEURI + '/cgi-bin/ptz.cgi?action=' + action + '&channel=1';
+		var uri = self.BASEURI + '/cgi-bin/ptz.cgi?action=' + action + '&channel=1'
 
 		if (direction == 'GotoPreset') {
-			uri += '&code=' + direction + '&arg1=0&arg2=' + speed + '&arg3=0';
+			uri += '&code=' + direction + '&arg1=0&arg2=' + speed + '&arg3=0'
 		} else {
-			uri += '&code=' + direction + '&arg1=' + speed +'&arg2=' + speed + '&arg3=0';
+			uri += '&code=' + direction + '&arg1=' + speed + '&arg2=' + speed + '&arg3=0'
 		}
 
 		//self.log('debug', uri);
 
 		request(uri, function (error, response, body) {
-
-			if ((error) || (response.statusCode !== 200) || (body.trim() !== "OK")) {
-				self.log('warn', 'Send Error: ' + error);
+			if (error || response.statusCode !== 200 || body.trim() !== 'OK') {
+				self.log('warn', 'Send Error: ' + error)
 				// Start init to reconnect to cam because probably network lost
-				self.init();
-
+				self.init()
 			}
-			}).auth(self.config.user,self.config.password,false);
-
-	}
-
-
-	action(action) {
-		var self = this;
-		var cmd;
-		var param;
-		var opt = action.options;
-
-		switch (action.action) {
-
-			case 'left':
-				cmd = 'start';
-				param = 'Left';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case "right":
-				cmd = 'start';
-				param = 'Right';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case 'up':
-				cmd = 'start';
-				param = 'Up';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case "down":
-				cmd = 'start';
-				param = 'Down';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case 'upleft':
-				cmd = 'start';
-				param = 'LeftUp';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case "upright":
-				cmd = 'start';
-				param = 'RightUp';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case 'downleft':
-				cmd = 'start';
-				param = 'LeftDown';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case "downright":
-				cmd = 'start';
-				param = 'RightDown';
-				self.ptzMove(param, cmd, opt.speed);
-				break;
-
-			case 'stop':
-				cmd = 'stop';
-				param = 'Left';
-				self.ptzMove(param, cmd, 1);
-				break;
-
-			case 'zoomI':
-				cmd = 'start';
-				param = 'ZoomTele';
-				self.ptzMove(param, cmd, 0);
-				break;
-			case 'zoomO':
-				cmd = 'start';
-				param = 'ZoomWide';
-				self.ptzMove(param, cmd, 0);
-				break;
-
-			case 'focusN':
-				cmd = 'start';
-				param = 'FocusNear';
-				self.ptzMove(param, cmd, 0);
-				break;
-
-			case 'focusF':
-				cmd = 'start';
-				param = 'FocusFar';
-				self.ptzMove(param, cmd, 0);
-				break;
-
-			case 'preset':
-				cmd = 'start';
-				param = 'GotoPreset';
-				self.ptzMove(param, cmd, opt.preset);
-				break;
-
-			case 'setDefaultSpeed':
-				// Only speed of this instance, not send to camera
-				self.instance_speed = opt.speed;
-				break;
-		}
+		}).auth(self.config.user, self.config.password, false)
 	}
 
 	// Web config fields
-	config_fields () {
-		var self = this;
+	getConfigFields() {
+		var self = this
 		return [
 			{
-				type:    'textinput',
-				id:      'host',
-				label:   'Dahua Amcrest API IP Address',
+				type: 'textinput',
+				id: 'host',
+				label: 'Dahua Amcrest API IP Address',
 				tooltip: 'The IP of the camera',
-				width:   6,
-				regex:   self.REGEX_IP
+				width: 6,
+				regex: Regex.IP,
 			},
 			{
-				type:    'textinput',
-				id:      'port',
-				label:   'Dahua Amcrest API Port Number (default 80)',
+				type: 'textinput',
+				id: 'port',
+				label: 'Dahua Amcrest API Port Number (default 80)',
 				tooltip: 'The Port Number camera.',
-				width:   6,
+				width: 6,
 				default: 80,
-				regex:   self.REGEX_PORT
+				regex: Regex.PORT,
 			},
 			{
-				type:    'textinput',
-				id:      'user',
-				label:   'User name',
+				type: 'textinput',
+				id: 'user',
+				label: 'User name',
 				tooltip: 'The user name.',
-				width:   6,
-				regex:   self.REGEX_SOMETHING
+				width: 6,
+				regex: Regex.SOMETHING,
 			},
 			{
-				type:    'textinput',
-				id:      'password',
-				label:   'Password',
+				type: 'textinput',
+				id: 'password',
+				label: 'Password',
 				tooltip: 'The password',
-				width:   6,
-				regex:   self.REGEX_SOMETHING
-			}
+				width: 6,
+				regex: Regex.SOMETHING,
+			},
 		]
 	}
 
-
-	destroy() {
-		var self = this;
-		debug("destroy");
+	async destroy() {
+		var self = this
+		self.log('debug', 'destroy')
 	}
 
-	init() {
-		var self = this;
+	async init(config) {
+		var self = this
 
-		debug = self.debug;
-		log = self.log;
-		self.instance_speed = 1;
+		if (config) {
+			self.config = config
+		}
 
-		self.status(self.STATUS_WARNING, 'Connecting...');
+		self.instance_speed = DEFAULT_INSTANCE_SPEED
+
+		self.actions()
+
+		self.updateStatus('connecting')
 
 		// Connecting on init not neccesary for http (request). But during init try to tcp connect
 		// to get the status of the module right and automatically try reconnecting. Which is
-		// implemented in ../../tcp.
+		// implemented in TCPHelper.
 		if (self.config.host !== undefined) {
-			self.tcp = new tcp(self.config.host, self.config.port);
+			self.tcp = new TCPHelper(self.config.host, self.config.port)
 
-			self.tcp.on('status_change', function (status, message) {
-				self.status(status, message);
-			});
+			self.tcp.on('status_change', self.updateStatus.bind(self))
 
 			self.tcp.on('error', function () {
-				// Ignore
-			});
+				self.updateStatus('unknown_error')
+			})
 			self.tcp.on('connect', function () {
 				// disconnect immediately because further comm takes place via Request and not
 				// via this tcp sockets.
 				if (self.tcp !== undefined) {
-					self.tcp.destroy();
+					self.tcp.destroy()
 				}
-				delete self.tcp;
-				self.BASEURI = 'http://' + self.config.host + ':' + self.config.port;
+				delete self.tcp
+				self.BASEURI = 'http://' + self.config.host + ':' + self.config.port
 
 				//Try a ptz stop command to be sure username and password are correct and this user is allowed PTZ on this camera
-				request(self.BASEURI + '/cgi-bin/ptz.cgi?action=stop&channel=1&code=Up&arg1=1&arg2=1&arg3=0', function (error, response, body) {
-
-					if ((error) || (response.statusCode !== 200) || (body.trim() !== "OK")) {
-						self.status(self.STATUS_ERROR, 'Username/password');
-						self.log('warn', "response.statusCode: " + response.statusCode);
-					} else {
-						self.status(self.STATUS_OK, 'Connected');
-					}
-					}).auth(self.config.user,self.config.password,false);
-			});
+				request(
+					self.BASEURI + '/cgi-bin/ptz.cgi?action=stop&channel=1&code=Up&arg1=1&arg2=1&arg3=0',
+					function (error, response, body) {
+						if (error || response.statusCode !== 200 || body.trim() !== 'OK') {
+							self.updateStatus(
+								'connection_failure',
+								'Failed to connect to the camera... are the username and password correct? Status Code: ' +
+									response.statusCode,
+							)
+						} else {
+							self.updateStatus('ok')
+						}
+					},
+				).auth(self.config.user, self.config.password, false)
+			})
 		}
 	}
 
-	updateConfig(config) {
-		var self = this;
-		self.config = config;
+	async configUpdated(config) {
+		var self = this
+		self.config = config
 
 		if (self.tcp !== undefined) {
-			self.tcp.destroy();
-			delete self.tcp;
+			self.tcp.destroy()
+			delete self.tcp
 		}
 
-		self.init();
+		self.init()
 	}
 }
 
-exports = module.exports = instance;
+runEntrypoint(ModuleInstance, [])
