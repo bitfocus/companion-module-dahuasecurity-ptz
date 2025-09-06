@@ -203,7 +203,17 @@ class ModuleInstance extends InstanceBase {
 				],
 				callback: ({ options }) => self.ptzMove('RightDown', 'start', options.speed),
 			},
-			stop: { name: 'PTZ Stop', options: [], callback: () => self.ptzMove('Left', 'stop', 1) },
+			stop: {
+				name: 'PTZ Stop',
+				options: [],
+				callback: () => {
+					self.ptzMove('Left', 'stop', 1)
+					// some cameras require separate commands for stopping zoom/focus.
+					// the documentation notes that speed should be zero for both of these
+					self.ptzMove('ZoomWide', 'stop', 0)
+					self.ptzMove('FocusFar', 'stop', 0)
+				},
+			},
 			zoomI: { name: 'Zoom In', options: [], callback: () => self.ptzMove('ZoomTele', 'start', 0) },
 			zoomO: { name: 'Zoom Out', options: [], callback: () => self.ptzMove('ZoomWide', 'start', 0) },
 			focusN: { name: 'Focus Near', options: [], callback: () => self.ptzMove('FocusNear', 'start', 0) },
